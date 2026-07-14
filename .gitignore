@@ -1,0 +1,20 @@
+# Credentials & Keys
+*.env
+*.pem
+*.key
+credentials.json
+id_rsa*
+*.ovpn
+
+# Cloud specific
+.aws/
+.azure/
+*.tfstate
+*.tfvars
+
+# Outputs & Loot
+*.log
+*.pcap
+loot/
+target_data/
+__pycache__/
