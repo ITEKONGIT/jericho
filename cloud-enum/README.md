@@ -1,27 +1,25 @@
-# Internal Host Assessments & Hardening
+# Cloud Enumeration and Host Security Auditing
 
-This directory contains scripts utilized for internal security assessments, focusing on host-level enumeration, baseline compliance, and server hardening verification. 
+This directory serves as the home for our internal security assessments, host hardening, and cloud-native exploitation research. Much like the wisdom in Proverbs 27:12—"The prudent see danger and take refuge, but the simple keep going and pay the penalty"—this suite is built to help us see the vulnerabilities before they become a liability.
 
-The tooling is designed to evaluate environments—particularly cloud-native VPS deployments like DigitalOcean—against established operational security standards.
+## Linux Host Security
+- **linux-host-audit.sh**: This is our go-to automated bash utility for hardening Linux hosts. 
+  - It handles metadata SSRF checks (critical for DigitalOcean and other cloud-native setups), audits Docker daemon configurations to ensure we aren't running as unrestricted root, hardens the SSH daemon, and checks our system integrity via AppArmor and auditd.
 
-## Active Tooling
+## Cloud Provider Exploitation
+This section contains our research methodology and the tactical scripts we use in the field.
 
-### 1. Linux Host Security Auditor (`linux-host-audit.sh`)
-A comprehensive, automated bash utility for assessing the security posture of a target Linux host. It is specifically tuned to identify common misconfigurations, missing defensive controls, and potential privilege escalation vectors.
+### AWS (Amazon Web Services)
+- **aws/lateral-movement.md**: Our current notes on navigating AWS IAM and privilege escalation paths.
+- **aws/scripts/**: Home to tools like console_federator.py, used for handling federated session exploitation.
 
-**Cloud-Native & DigitalOcean Focus:**
-* **Metadata SSRF Checks:** Verifies if the DigitalOcean metadata service (`169.254.169.254`) is exposed to the local VM, assessing the risk of Server-Side Request Forgery (SSRF) abuse.
-* **Containerization Security:** Audits Docker configurations to identify if the daemon is running with default, unrestricted root privileges.
+### GCP (Google Cloud Platform)
+- **gcp/gcp-exploitation.md**: Our evolving playbook for enumerating GCP service accounts and finding escalation vectors.
+- **gcp/scripts/**: A dedicated space for GCP-specific reconnaissance tools as we develop them.
 
-**Core Hardening Standards Assessed:**
-* **Access & Authentication:** Validates SSH daemon hardening (`PermitRootLogin`, `MaxAuthTries`, `X11Forwarding`) and enumerates risky passwordless `sudo` entries (`NOPASSWD: ALL`).
-* **Intrusion Prevention & Logging:** Verifies the active deployment of `fail2ban` and the `auditd` framework.
-* **File System Security:** Audits mount point restrictions (`noexec`, `nosuid`, `nodev`) and scans for world-writable files across the host.
-* **System Integrity:** Identifies pending critical security updates, required reboots, and the operational status of AppArmor.
+### Azure
+- **azure/azure-exploitation.md**: Tactics for mapping Azure AD (Entra ID) and tenant-level enumeration.
+- **azure/scripts/**: Reserved for our Azure-specific offensive tooling.
 
-**Usage:**
-Execution requires root privileges for complete filesystem and service enumeration.
-```bash
-chmod +x linux-host-audit.sh
-sudo ./linux-host-audit.sh
-Note: Subsequent enumeration and assessment scripts will be documented here as they are added to the arsenal.
+## How to use this
+Most of these tools—especially the host audits—require root privileges to be effective. As we grow the arsenal, please ensure that any new scripts you add to the provider directories are linked back to their corresponding research notes in the Markdown files. We need to keep the "why" just as accessible as the "how."
