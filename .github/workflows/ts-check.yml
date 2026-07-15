@@ -1,0 +1,15 @@
+name: TypeScript Quality Gate
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
+      - name: Run TypeScript Compiler
+        run: npx tsc --noEmit
+      - name: Run ESLint
+        run: npx eslint . --ext .ts
