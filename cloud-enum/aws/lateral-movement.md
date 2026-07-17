@@ -13,6 +13,14 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 unzip awscliv2.zip
 sudo ./aws/install
 
+#Enumeration of Services and Policies
+aws iam list-roles --query 'Roles[*].RoleName' --output text | tr '\t' '\n' | while read role; do
+    echo "Checking Role: $role"
+    aws iam list-role-policies --role-name "$role" --query 'PolicyNames[*]' --output text | tr '\t' '\n' | while read policy; do
+        aws iam get-role-policy --role-name "$role" --policy-name "$policy" | grep -Ei "(admin|full|*|iam:Put|iam:PassRole|sts:AssumeRole|ec2:RunInstances)"
+    done
+done
+
 # Who am I? (Does not log to CloudTrail in most configurations)
 aws sts get-caller-identity
 
