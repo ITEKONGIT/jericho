@@ -2,9 +2,17 @@
 
 A reference guide for moving laterally through an AWS environment and escalating privileges using compromised IAM credentials.
 
+#Installation Steps for AWS CLI 
+
+
 ## 1. Initial Access Validation
 Before making noise, silently validate who you are and what you can do.
 ```bash
+#Installing the CLI environment
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
 # Who am I? (Does not log to CloudTrail in most configurations)
 aws sts get-caller-identity
 
