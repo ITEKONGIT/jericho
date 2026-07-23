@@ -25,4 +25,4 @@ This document serves as the master guide to the functional components of the Jer
 ## 5. Web-App (Intruder Utilities)
 * **Purpose:** Application-layer stress testing and credential fuzzing.
 * **Problems Solved:** Rapidly identifies weak authentication endpoints and validates brute-force vulnerabilities.
-* **Content:** Custom scripts for automated request mutation and credential testing.
+* **Content:** Custom scripts for automated request mutation, credential testing, and read-only GraphQL endpoint/introspection enumeration.
