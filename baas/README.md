@@ -7,6 +7,7 @@ The `supabase/` directory contains an orchestration suite for:
 - **Project Discovery**: Mapping schema, RPC functions, and storage buckets.
 - **RLS Audit**: Probing Row-Level Security policies for unauthorized data access (READ/WRITE).
 - **Authentication Assessment**: Testing OAuth configurations and JWT verification flows.
+- **Signup-to-Admin Review**: Identifying cases where open signup plus weak RLS or route guards exposes admin dashboards.
 - **Secret Exposure**: Harvesting `anon` and `service_role` keys from frontend environments.
 
 ## Assessment Pipeline

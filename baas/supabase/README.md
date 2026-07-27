@@ -55,6 +55,12 @@ Why this policy is vulnerable includes the following factors. The role check onl
 
 A secure policy with tenant isolation verifies that the authenticated user owns the record and belongs to the correct organization. The policy checks that auth.uid() equals the user_id column and that the organization_id matches the org_id claim in the JWT.
 
+Signup To Admin Dashboard Exposure
+
+A common real-world chain starts with public signup. If the application is meant to be invite-only or role-gated, but Supabase Auth still allows arbitrary registration, a newly created user can obtain an authenticated JWT and test whether the application treats logged-in status as authorization. This becomes critical when admin dashboard routes, PostgREST tables, RPC functions, storage buckets, or realtime channels rely on frontend guards or broad authenticated-only RLS policies.
+
+Detailed methodology: auth/signup-admin-dashboard.md
+
 ARSENAL ARCHITECTURE
 --------------------
 
