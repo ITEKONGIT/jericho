@@ -1,6 +1,7 @@
 # WEB-APP Security
 Payloads and automation scripts for web application testing.
 
+- **apache-htaccess/**: Apache and `.htaccess` review for override scope, rewrite mistakes, directory listing, Basic Auth, handlers, and sensitive file exposure.
 - **auth-endpoints/**: Checks for endpoints that still work after auth headers, cookies, API keys, or JWT claims are removed or tampered.
 - **cache-invalidation/**: Methodology and developer fixes for token/JWT-tied cache exposure after logout.
 - **graphql/**: Placeholder GraphQL enumeration helpers for no-auth or explicitly low-privilege introspection checks.
