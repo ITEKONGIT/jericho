@@ -18,6 +18,6 @@ id_rsa*
 loot/
 target_data/
 __pycache__/
-docs/Infra-Security-Assessment-Checklist.md
-node_modules/
+
+# Dependencies
 node_modules/
