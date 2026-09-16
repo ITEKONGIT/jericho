@@ -1,4 +1,4 @@
-# Exploit-Forge — Infra Security Assessment Checklist
+# Infrastructure Security Assessment Checklist
 
 **Source of truth for cloud + host infrastructure security assessments (DigitalOcean / Hetzner focus).**
 
@@ -574,3 +574,6 @@ $(id)
 - [ ] Confirmed which checks ran unprivileged vs. required root
 - [ ] Re-ran root-only checks after escalation / with sudo account
 - [ ] Verified clean results aren't masked permission errors
+
+---
+*Jericho: And the walls came tumbling down. For authorized security assessments only.*

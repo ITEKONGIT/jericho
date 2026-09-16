@@ -27,3 +27,5 @@ This section contains our research methodology and the tactical scripts we use i
 ## How to use this
 
 Most of these tools—especially the host audits—require root privileges to be effective. As we grow the arsenal, please ensure that any new scripts you add to the provider directories are linked back to their corresponding research notes in the Markdown files. We need to keep the "why" just as accessible as the "how."
+
+The procedure these tools implement lives in **`../docs/Infra-Security-Assessment-Checklist.md`** — pre-engagement authorization gates, external attack-surface enumeration, host-level misconfiguration auditing with expected vulnerable/hardened output per check, and cloud config review. Start there, and reach for the scripts in this directory when a step calls for one; the tooling is only useful alongside the reasoning that says when to run it and what a clean result actually means.
