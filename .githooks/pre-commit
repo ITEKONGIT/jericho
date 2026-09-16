@@ -1,0 +1,36 @@
+#!/bin/bash
+# Jericho pre-commit gate.
+#
+# This is version controlled. Git only reads hooks from .git/hooks by default,
+# so enable it once per clone:
+#
+#     git config core.hooksPath .githooks
+#
+# The authoritative gate for CI is .github/workflows/quality-gate.yml; this is
+# the local fast-feedback equivalent, so a broken commit fails here first.
+set -e
+
+fail() { echo "[-] $1"; exit 1; }
+
+echo "[*] Running quality gate..."
+
+# 1. Byte-compile every first-party Python file (catches syntax errors).
+python3 -m compileall -q -x '(node_modules|\.git|internal/printers/PRET)' . \
+  || fail "Python byte-compile failed. Fix errors before committing."
+
+# 2. Run every discovered test directory, wherever tests live.
+for d in $(find . -name 'test_*.py' -not -path './node_modules/*' -exec dirname {} \; | sort -u); do
+  (cd "$d" && python3 -m unittest discover -p 'test_*.py' -q) \
+    || fail "Tests failed in $d."
+done
+
+# 3. Syntax-check every tracked shell script.
+for f in $(git ls-files '*.sh'); do
+  bash -n "$f" || fail "Shell syntax error in $f."
+done
+
+# Leave no bytecode behind.
+find . -name __pycache__ -not -path './node_modules/*' -exec rm -rf {} + 2>/dev/null
+
+echo "[+] Quality gate passed."
+exit 0
