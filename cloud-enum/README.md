@@ -2,6 +2,14 @@
 
 This directory serves as the home for our internal security assessments, host hardening, and cloud-native exploitation research. Much like the wisdom in Proverbs 27:12—"The prudent see danger and take refuge, but the simple keep going and pay the penalty"—this suite is built to help us see the vulnerabilities before they become a liability.
 
+## Newcomer ramp
+
+**What this field is.** When the target runs inside AWS/GCP/Azure, the network diagram has two layers: the boxes I can reach, and the *control plane* that tells those boxes what they are. Stealing the right credential from a box (SSRF the metadata endpoint, read an instance role) often grants API access to far more than that box — the cloud treats credentials as authority, not network position.
+
+**Why people miss findings here.** The host gets patched and hardened, and the assessment stops at the host. But the interesting asset is the *role attached to it*: a fully hardened VM with a wildcard IAM policy is a tenant-level compromise waiting for one SSRF. The recurring miss: **treating cloud credentials as belonging to the machine instead of to the account.**
+
+**Read order.** [`docs/Infra-Security-Assessment-Checklist.md`](../docs/Infra-Security-Assessment-Checklist.md) first — it's the gates-and-order document this module implements. Then [`Host-Audit/`](Host-Audit/) (the metadata SSRF and Docker checks are the highest-value items), then the provider notes ([`aws/`](aws/), [`gcp/`](gcp/), [`azure/`](azure/)) for whichever provider the target actually uses. **Defer:** provider-specific escalation paths until the foothold exists — the checklist will say when.
+
 ## Linux Host Security
 
 - **Host-Audit/**: Our Linux host hardening toolkit.

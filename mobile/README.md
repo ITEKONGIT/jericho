@@ -2,6 +2,14 @@
 
 This directory is the home for the tools we use to break down Android and iOS applications. As we often say, "The truth is hidden in the runtime," and these scripts are designed to expose what the developers try to keep under the hood.
 
+## Newcomer ramp
+
+**What this field is.** A mobile app is a frontend whose backend logic I can watch from the *inside* — the runtime. Instead of guessing at API behavior through a proxy, I hook the running process and read (or change) what the app does: what it verifies, what it trusts, what it sends. Frida is the tool for that; the scripts here are pre-built hooks for the protections apps raise against being watched.
+
+**Why people miss findings here.** Two failure modes read as dead ends but are actually signals. An empty proxy doesn't mean "no traffic" — it means the app dodged the proxy (custom stack, ignoring system settings); force it through with `network/persist_proxy.sh`. A bypass that loads without errors doesn't mean pinning is beaten — the pinning may live in native code, below the Java layer every standard hook touches. The recurring miss: **reading tool silence as a result instead of as a wrong-layer or wrong-tool signal.**
+
+**Read order.** [`network/persist_proxy.sh`](network/persist_proxy.sh) first (get the traffic flowing), then [`ssl-pinning/universal_bypass.js`](ssl-pinning/universal_bypass.js) — the minimal single-purpose hook, which is what I want on an unknown target. Escalate to [`frida/universal_android_bypass.js`](frida/universal_android_bypass.js) (the heavy multi-hook script) only when the minimal one survives. When *that* stops working, [`docs/methodology/mobile-reversing.md`](../docs/methodology/mobile-reversing.md) is the escalation path — native-layer pinning and telemetry analysis. **Defer:** `native_socket_monitor.js` until the app turns out to speak a custom protocol over raw sockets.
+
 ## Network Interception
 
 - **network/persist_proxy.sh**: This script uses ADB and iptables to force all device traffic through our intercepting proxy. It is particularly useful for those applications that ignore system-level proxy settings or use custom networking stacks. Just remember that it requires a rooted device or a permissive emulator to function.

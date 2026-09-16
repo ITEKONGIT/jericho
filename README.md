@@ -16,6 +16,25 @@ A centralized repository for technical methodologies, utility scripts, and secur
 * **/mobile/**: Dynamic instrumentation and analysis configurations.
 * **/web-app/**: Web-based utility tools for automation and testing.
 
+## Where do I start? (routing by what's in front of me)
+
+The structure above says what lives where. This says what to open when I'm standing in front of something real and can't remember which door it was behind.
+
+| What's in front of me | Module | Open first |
+|---|---|---|
+| A compiled binary (ELF/PE), or a crashing service | [binary-exploitation/](binary-exploitation/) | the "What is a binary?" section below, then [`tools/triage.sh`](binary-exploitation/tools/triage.sh) |
+| A web app and a browser | [web-app/](web-app/) | [`auth-endpoints/`](web-app/auth-endpoints/) — everything else in that module hangs off auth |
+| A Supabase or Firebase URL (or a frontend bundle) | [baas/](baas/) | [`baas/README.md`](baas/README.md) — the assessment pipeline, then the arsenal |
+| Cloud credentials, or a box inside AWS/GCP/Azure | [cloud-enum/](cloud-enum/) | [`docs/Infra-Security-Assessment-Checklist.md`](docs/Infra-Security-Assessment-Checklist.md), then [`Host-Audit/`](cloud-enum/Host-Audit/) |
+| LAN access (or "the scan said the network is clean") | [internal/](internal/) | [`discovery/`](internal/discovery/) — sweeps miss whole classes of assets |
+| An APK/IPA, or an app that refuses to proxy | [mobile/](mobile/) | [`network/persist_proxy.sh`](mobile/network/persist_proxy.sh), then the minimal pinning bypass |
+| A known CVE or a named product (Appsmith, Kudu) | [exploits/](exploits/) | [`exploits/README.md`](exploits/README.md) for the interface, then the module |
+| I want LLM help but the target can't leave my hardware | [ai-inference/](ai-inference/) | [`ai-inference/README.md`](ai-inference/README.md) |
+
+**Methodology and checklists** (the "why" layer) live in [`docs/`](docs/). The cross-cutting index of bug classes people tend to never see is [`docs/classes-people-miss.md`](docs/classes-people-miss.md) — start there if the question is "what am I probably overlooking?" rather than "what is this file?"
+
+Every module README now opens with the same three-part ramp: **what this field is** (for day one), **why people miss its findings** (the non-obvious part), and a **read order** (what to read now, what can wait). Skim the ramp, read in order, defer the rest until a target makes it relevant.
+
 ## What is a binary?
 
 Everything else in this repository audits a running *service*. `binary-exploitation/` audits the compiled *program*.
