@@ -16,57 +16,77 @@ service cloud.firestore {
     }
   }
 }
-Common Rule Misconfigurations
-A. The Global Open Trap
+```
+
+### Common Rule Misconfigurations
+
+**A. The Global Open Trap**
+
 Often used during development and forgotten. Anyone can read or write any document.
 
-JavaScript
+```javascript
 match /{document=**} {
   allow read, write: if true;
 }
-B. The "Authenticated-Only" Fallacy
+```
+
+**B. The "Authenticated-Only" Fallacy**
+
 Developers often assume that requiring authentication is enough. However, this allows any registered Firebase user (including an attacker who self-registers) to read or write other users' data.
 
-JavaScript
+```javascript
 match /users/{userId} {
   allow read, write: if request.auth != null;
 }
-C. Write-Only but No Read Protections
+```
+
+**C. Write-Only but No Read Protections**
+
 Sometimes developers secure writes but allow public reads, exposing internal application configurations, PII, or access logs.
 
-JavaScript
+```javascript
 match /logs/{logId} {
   allow read: if true;
   allow write: if request.auth.token.admin == true;
 }
-2. Enumerating Firestore via API Endpoints
+```
+
+## 2. Enumerating Firestore via API Endpoints
+
 Firestore exposes its data through a REST API. If rules are permissive, you can query endpoints directly without using the Firebase SDK.
 
-Checking for Public Collection Dumps
+### Checking for Public Collection Dumps
+
 To test if a specific collection is readable, send a request to the structured Firestore REST endpoint:
 
-Bash
-curl -s -X GET "[https://firestore.googleapis.com/v1/projects/](https://firestore.googleapis.com/v1/projects/)<PROJECT_ID>/databases/(default)/documents/<COLLECTION_NAME>"
-Vulnerable (200 OK): Returns a JSON payload containing the structured documents within that collection.
+```bash
+curl -s -X GET "https://firestore.googleapis.com/v1/projects/<PROJECT_ID>/databases/(default)/documents/<COLLECTION_NAME>"
+```
 
-Secured (403 Forbidden): Returns a permission denied error.
+* **Vulnerable (200 OK):** Returns a JSON payload containing the structured documents within that collection.
+* **Secured (403 Forbidden):** Returns a permission denied error.
 
-Automating the Audit
+### Automating the Audit
+
 You can run automated scanning to find exposed collections using simple bash loops:
 
-Bash
+```bash
 for col in users configurations settings profiles orders transactions; do
   echo "[*] Testing collection: $col"
-  curl -s -o /dev/null -w "%{http_code}" "[https://firestore.googleapis.com/v1/projects/](https://firestore.googleapis.com/v1/projects/)<PROJECT_ID>/databases/(default)/documents/$col"
+  curl -s -o /dev/null -w "%{http_code}" "https://firestore.googleapis.com/v1/projects/<PROJECT_ID>/databases/(default)/documents/$col"
   echo ""
 done
-3. Remediating Firestore Rules
+```
+
+## 3. Remediating Firestore Rules
+
 To secure your Firestore instance, rules must enforce strict resource ownership and validate inputs.
 
-Secure User-Owned Rules
-The auth.uid must match the specific document ID of the user record being accessed:
+### Secure User-Owned Rules
 
-JavaScript
+The `auth.uid` must match the specific document ID of the user record being accessed:
+
+```javascript
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
@@ -74,3 +94,4 @@ service cloud.firestore {
     }
   }
 }
+```
