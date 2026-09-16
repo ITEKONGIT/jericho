@@ -1,0 +1,54 @@
+name: Quality Gate
+
+on: [push, pull_request]
+
+jobs:
+  python:
+    name: Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Byte-compiles every first-party Python file. Catches syntax errors that
+      # would otherwise only surface when a script is run mid-engagement.
+      # PRET is vendored third-party code and is excluded.
+      - name: Byte-compile first-party Python
+        run: python -m compileall -q -x '(node_modules|\.git|internal/printers/PRET)' .
+
+      # Discovers test directories rather than hardcoding them. This matters
+      # because module directories are hyphenated (`binary-exploitation`), and
+      # `unittest discover` cannot recurse into a non-importable directory name
+      # -- so a repo-wide `discover` silently reports "0 tests ran".
+      - name: Run regression suite
+        run: |
+          for d in $(find . -name 'test_*.py' -not -path './node_modules/*' -exec dirname {} \; | sort -u); do
+            echo "::group::tests in $d"
+            (cd "$d" && python -m unittest discover -p 'test_*.py' -v)
+            echo "::endgroup::"
+          done
+
+  shell:
+    name: Shell
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Shell syntax check
+        run: |
+          fail=0
+          for f in $(git ls-files '*.sh'); do
+            if bash -n "$f"; then
+              echo "ok   $f"
+            else
+              echo "FAIL $f"
+              fail=1
+            fi
+          done
+          exit $fail
